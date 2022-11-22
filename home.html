@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+	<head>
+		<title>pixel paradise</title>
+		<meta lang="en">
+	</head>
+	<body>
+		<h1>alles over de pixel</h1>
+		<p>
+			een pixel is het kleinst mogelijke stukje data op een twee dimensionaal vlak.<br>
+			het bevat kleurdata afhankelijk van welk kleurformaat er gebruikt word.<br>
+			tegenwoordig is de standaard dat er 24 bits gebruikt worden om een kleur te representeren.<br>
+			8 bits voor rood, groen en blauw.<br>
+			hiermee kan je meer dan 16 miljoen verschillende kleuren weergeven per pixel<br>
+			grappig om je voor te stellen hoeveel verschillende afbeeldingen je kan projecteren op een scherm van 16 bij 16 pixel.<br>
+			dit is 16 miljoen tot de macht 256, meer dan het totaal aantal atomen wat in dit universum aanwezig is<br>
+		</p>
+		<canvas onmousedown="draw(event)" onmousemove="draw(event)" id="drawing" width="400" height="400"></canvas><br>
+		<input type="range" onchange="changeRed(value)">
+		<input type="range" onchange="changeGreen(value)">
+		<input type="range" onchange="changeBlue(value)"><br>
+		<h2 style="margin-left:50px;">red</h2>
+		<h2 style="margin-left:90px;">green</h2>
+		<h2 style="margin-left:80px;">blue</h2>
+		<div id="colorSquare"></div>
+		<canvas id="splitting" width="400" height="400"></canvas>
+	</body>
+	<style>
+		*{
+			background-color: rgb(0,20,40);
+			color: rgb(190,190,190);
+		}
+		canvas{
+			background-color: rgb(0,0,0);
+			border-style: solid;
+			border-color: rgb(190,190,190);
+			border-width: 20;
+		}
+		h2{
+			display:inline;
+		}
+		#colorSquare{
+			width: 50px;
+			height: 50px;
+			background-color: rgb(127,127,127);
+			margin-left:420px;
+			margin-top: -120px;
+		}
+		#splitting{
+			margin-top: -390px;
+			margin-left: 485px;
+		}
+	</style>
+	<script>
+		class RGB{
+			constructor(r,g,b){
+				this.r = r;
+				this.g = g;
+				this.b = b;
+			}
+		}
+		let drawcvs = document.getElementById("drawing");
+		let drawcvsdc = drawcvs.getContext("2d");
+		let cvsrect = drawcvs.getBoundingClientRect();
+		let color = new RGB(127,127,127);
+		drawcvsdc.fillStyle = `rgb(80,80,80)`;
+		let colorSquare = document.getElementById("colorSquare");
+		color.r = 255;
+		for(let x = 0;x < 40;x++){
+			drawcvsdc.fillRect(x*10+9,0,1,400);
+			drawcvsdc.fillRect(0,x*10+9,400,1);
+		}
+		function draw(evt){
+			if(evt.buttons == 1){
+				let x = evt.clientX - cvsrect.left - 5;
+				let y = evt.clientY - cvsrect.top - 5;
+				x = Math.round(x/10)*10 - 2;
+				y = Math.round(y/10)*10 - 2;
+				drawcvsdc.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
+				drawcvsdc.fillRect(x+2,y+2,9,9);
+			}
+		}
+		let splitcvs = document.getElementById("splitting");
+		let splitcvsdc = drawcvs.getContext("2d");
+		function changeRed(val){
+			color.r = val * 2.56;
+			colorSquare.style.background = `rgb(${color.r},${color.g},${color.b})`;
+		}
+		function changeGreen(val){
+			color.g = val * 2.56;
+			colorSquare.style.background = `rgb(${color.r},${color.g},${color.b})`;
+		}
+		function changeBlue(val){
+			color.b = val * 2.56;
+			colorSquare.style.background = `rgb(${color.r},${color.g},${color.b})`;
+		}
+	</script>
+</html>
