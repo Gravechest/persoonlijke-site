@@ -23,7 +23,7 @@
 		<h2 style="margin-left:90px;">green</h2>
 		<h2 style="margin-left:80px;">blue</h2>
 		<div id="colorSquare"></div>
-		<canvas id="splitting" width="400" height="400"></canvas>
+		<canvas onmousemove="split(event)" id="splitting" width="1000" height="1000"></canvas>
 	</body>
 	<style>
 		*{
@@ -52,6 +52,7 @@
 		}
 	</style>
 	<script>
+		"use strict";
 		class RGB{
 			constructor(r,g,b){
 				this.r = r;
@@ -59,29 +60,61 @@
 				this.b = b;
 			}
 		}
-		let drawcvs = document.getElementById("drawing");
-		let drawcvsdc = drawcvs.getContext("2d");
-		let cvsrect = drawcvs.getBoundingClientRect();
-		let color = new RGB(127,127,127);
+		let drawcvs     = document.getElementById("drawing");
+		let drawcvsdc   = drawcvs.getContext("2d");
+		let drawcvsrect = drawcvs.getBoundingClientRect();
+		let color       = new RGB(127,127,127);
 		drawcvsdc.fillStyle = `rgb(80,80,80)`;
 		let colorSquare = document.getElementById("colorSquare");
-		color.r = 255;
 		for(let x = 0;x < 40;x++){
 			drawcvsdc.fillRect(x*10+9,0,1,400);
 			drawcvsdc.fillRect(0,x*10+9,400,1);
 		}
 		function draw(evt){
 			if(evt.buttons == 1){
-				let x = evt.clientX - cvsrect.left - 5;
-				let y = evt.clientY - cvsrect.top - 5;
-				x = Math.round(x/10)*10 - 2;
-				y = Math.round(y/10)*10 - 2;
+				let x = evt.clientX - drawcvsrect.left;
+				let y = evt.clientY - drawcvsrect.top;
+				x = Math.floor(x/10) * 10 - 2;
+				y = Math.floor(y/10) * 10 - 2;
 				drawcvsdc.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
 				drawcvsdc.fillRect(x+2,y+2,9,9);
 			}
 		}
-		let splitcvs = document.getElementById("splitting");
-		let splitcvsdc = drawcvs.getContext("2d");
+		const splitsz = 1000;
+		let splitcvs     = document.getElementById("splitting");
+		let splitcvsdc   = splitcvs.getContext("2d");
+		let splitcvsrect = splitcvs.getBoundingClientRect();
+		let splitarr     = [[new RGB(127,127,127)],[null,null,null,null],[],[],[],[],[],[],[],[],[]];
+
+		splitcvsdc.fillStyle = `rgb(${splitarr[0][0].r},${splitarr[0][0].g},${splitarr[0][0].b})`;
+		splitcvsdc.fillRect(0,0,splitsz,splitsz);
+
+		function split(evt){
+			let x = evt.clientX - splitcvsrect.left;
+			let y = evt.clientY - splitcvsrect.top;
+			for(let i = 1,zoomup = 1,zoomdown = splitsz;i < 9;i++,zoomup*=2,zoomdown/=2){
+				let relx = Math.floor(x/zoomdown);
+				let rely = Math.floor(y/zoomdown);
+				if(splitarr[i][relx*zoomup+rely] == null){
+					let parent = Math.floor(relx/2)*zoomup/2+Math.floor(rely/2);
+
+					let red   = splitarr[i-1][parent].r + Math.random()*30-15;
+					let green = splitarr[i-1][parent].g + Math.random()*30-15;
+					let blue  = splitarr[i-1][parent].b + Math.random()*30-15;
+
+					splitarr[i][relx*zoomup+rely] = new RGB(red,green,blue);
+
+					splitarr[i+1][relx*zoomup*2+rely*2]       = null;
+					splitarr[i+1][relx*zoomup*2+rely*2+1]     = null;
+					splitarr[i+1][(relx*2+1)*zoomup+rely*2]   = null;
+					splitarr[i+1][(relx*2+1)*zoomup+rely*2+1] = null;
+
+					splitcvsdc.fillStyle = `rgb(${red},${green},${blue})`;
+					splitcvsdc.fillRect(relx*zoomdown,rely*zoomdown,zoomdown,zoomdown);
+					break;
+				}		
+			}
+		}
 		function changeRed(val){
 			color.r = val * 2.56;
 			colorSquare.style.background = `rgb(${color.r},${color.g},${color.b})`;
